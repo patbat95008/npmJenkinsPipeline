@@ -1,0 +1,35 @@
+node {
+    environment{
+        //Create system credentials for an Artifactory user
+        ARTIFACTORY_CREDS = credentials('artifactory-creds')
+    }
+    
+    stage ('Clone') {
+        git url: 'https://github.com/patbat95008/NPMHelloWorld.git'
+    }
+    
+    stage('Build') { 
+        sh 'npm install' 
+    }
+    
+    stage('Deploy to Binary Repository Manager'){
+    
+        // You can use the JFrog CLI to publish to JFrog Artifactory 
+        // First download and install the CLI at https://jfrog.com/getcli/
+        //
+        // Then impersonate the Jenkins user and configure the CLI:
+        //      sudo su - jenkins
+        //      jfrog rt c 
+        
+        sh 'jfrog rt npm-publish npm-snapshots --build-name=$JOB_NAME --build-number=$BUILD_NUMBER'
+        sh 'jfrog rt bp $JOB_NAME $BUILD_NUMBER'
+        
+        // Alternatively, use "npm publish" to an NPM repository
+        //
+        // You will need to configure the target repository URL and 
+        // authenticate against it:
+        //      sudo su - jenkins
+        //      npm login 
+        // sh 'npm publish'
+    }
+}

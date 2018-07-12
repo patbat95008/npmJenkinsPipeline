@@ -1,0 +1,24 @@
+node {
+     // Obtain an Artifactory server instance, defined in Jenkins --> Manage:
+    def server = Artifactory.server 'art1'
+    
+    stage ('Promotion'){
+        def promotionConfig = [
+            //Mandatory parameters
+            'buildName'          : buildName,
+            'buildNumber'        : buildNumber,
+            'targetRepo'         : 'npm-releases',
+    
+            //Optional parameters
+            'comment'            : 'Fully tested by QA',
+            'sourceRepo'         : 'npm-snapshots',
+            'status'             : 'Released',
+            'includeDependencies': true,
+            'failFast'           : true,
+            'copy'               : true
+        ]
+    
+        // Promote build
+        server.promote promotionConfig
+    }
+}
